@@ -4,12 +4,14 @@
 #include "temperatureThread.h"
 #include "capsenseThread.h"
 #include "ntpThread.h"
+#include "awsThread.h"
 
 Thread blinkThreadHandle;
 Thread displayThreadHandle;
 Thread temperatureThreadHandle;
 Thread capsenseThreadHandle;
 Thread ntpThreadHandle;
+Thread awsThreadHandle;
 
 WiFiInterface *wifi;
 
@@ -34,5 +36,6 @@ int main()
     displayThreadHandle.start(displayThread);
     temperatureThreadHandle.start(temperatureThread);
     capsenseThreadHandle.start(capsenseThread);
+    awsThreadHandle.start(awsThread);
     
 }
