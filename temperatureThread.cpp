@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include "temperatureThread.h"
 #include "displayThread.h"
+#include "awsThread.h"
 
 #ifdef TARGET_CY8CPROTO_062_4343W
 #define THERMISTOR
@@ -93,7 +94,8 @@ void temperatureThread()
             else
                 displaySendUpdateMode(0.0);
 
-            displaySendUpdateTemp(temperatureF); 
+            displaySendUpdateTemp(temperatureF);
+            awsSendUpdateTemperature(temperatureF);
         }
     }
 

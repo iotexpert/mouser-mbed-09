@@ -6,6 +6,30 @@
 
 extern WiFiInterface *wifi;
 
+typedef enum {
+    CMD_sendTemperature,
+} command_t;
+
+typedef struct {
+    command_t cmd;
+    float    value;   /* AD result of measured voltage */
+} msg_t;
+
+
+static Queue<msg_t, 32> queue;
+static MemoryPool<msg_t, 16> mpool;
+
+void awsSendUpdateTemperature(float temperature)
+{
+    msg_t *message = mpool.alloc();
+    if(message)
+    {
+        message->cmd = CMD_sendTemperature;
+        message->value = temperature;
+        queue.put(message);
+    }
+}
+
 void messageArrived(aws_iot_message_t& md)
 {
     float setPoint; 
@@ -43,5 +67,28 @@ void awsThread(void)
     while(1)
     {
         AWSClient.yield(1000);
+        while(!queue.empty())
+        {
+            osEvent evt = queue.get(0);
+            if (evt.status == osEventMessage) {
+                msg_t *message = (msg_t*)evt.value.p;
+                switch(message->cmd)
+                {
+                    case CMD_sendTemperature:
+                        doPublish = true;
+                        currentTemp = message->value;
+                    break;
+
+                }
+                mpool.free(message);
+            }
+        }
+        if(doPublish)
+        {
+            char buffer[128];
+            sprintf(buffer,"%2.1f",currentTemp);
+            AWSClient.publish(ep,"currentTemp", buffer, strlen(buffer),  publish_params);
+        }
+        doPublish = false;
     }
 }
