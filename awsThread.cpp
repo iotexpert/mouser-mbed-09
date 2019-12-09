@@ -35,7 +35,7 @@ void messageArrived(aws_iot_message_t& md)
     float setPoint; 
     aws_message_t &message = md.message;
     sscanf((char*)message.payload,"%f",&setPoint);
-    tempSendUpdateCurrentSetPointF(setPoint);
+    tempSendUpdateSetpointF(setPoint);
 }
 
 void awsThread(void)
